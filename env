@@ -1,0 +1,14 @@
+# Email for sending verification email
+MAIL_USERNAME=
+MAIL_PASSWORD=
+
+# Any random text for hashing password and OTP
+JWT_SECRET=
+
+# Cloudinary for image upload
+CLOUDINARY_CLOUD_NAME=
+CLOUDINARY_API_KEY=
+CLOUDINARY_API_SECRET=
+
+# MongoDB
+DATABASE_URL=
