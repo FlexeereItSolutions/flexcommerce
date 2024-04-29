@@ -11,7 +11,7 @@ const Hero = () => {
             ></div>
 
             <div
-                className="relative mx-auto max-w-screen-xl px-4 py-32 sm:px-6 lg:flex lg:1/2 lg:items-center lg:px-8"
+                className="relative mx-auto max-w-screen-xl px-4 py-32 sm:px-6 lg:flex lg:h-1/2 lg:items-center lg:px-8"
             >
                 <div className="max-w-xl text-left">
                     <h1 className="text-3xl text-white font-extrabold sm:text-5xl">
