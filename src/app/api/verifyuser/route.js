@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken"
 import User from "../../../models/User"
 import { NextResponse } from "next/server"
 import connectToDatabase from "../../../lib/connect"
-export const POST = async (req) => {
+export const POST = async(req) => {
     const { token } = new headers(req.headers)
     console.log(`POST ${token}`)
     await connectToDatabase()
@@ -13,12 +13,10 @@ export const POST = async (req) => {
         let user = await User.findOne({ "_id": id })
         if (isTokenValid) {
             return NextResponse.json({ userValid: true, userName: user.name, isAdmin: user.isAdmin })
-        }
-        else {
+        } else {
             return NextResponse.json({ userValid: false })
         }
-    }
-    catch {
+    } catch {
         return NextResponse.json({ userValid: false })
     }
 }

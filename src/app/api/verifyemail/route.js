@@ -7,7 +7,7 @@ import connectToDatabase from "../../../lib/connect";
 export const POST = async(req) => {
     const { email, otp } = await req.json();
     await connectToDatabase()
-    const user = await User.findOne({ email: email }, { timeout: 30000 });
+    const user = await User.findOne({ email: email });
     let hashedOTP = user.otp
     let userId = user._id.toString();
     let isValid = await checkHash(otp, hashedOTP)
