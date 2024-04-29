@@ -21,8 +21,7 @@ const Hero = () => {
                     </h1>
 
                     <p className="mt-4 max-w-lg text-gray-300 sm:text-xl/relaxed">
-                        Lorem ipsum dolor sit amet consectetur, adipisicing elit. Nesciunt illo tenetur fuga ducimus
-                        numquam ea!
+                        Welcome to our platform, your one-stop solution for VPS services, ecommerce, and cloud machine needs. We provide robust, scalable, and secure virtual private servers to power your digital world. Our ecommerce solutions are designed to streamline your online business, and our cloud machines offer unparalleled computing power and flexibility. Experience the future of digital infrastructure with us.
                     </p>
 
                     <div className="mt-8 flex flex-wrap gap-4 text-center">
