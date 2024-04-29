@@ -28,10 +28,10 @@ const Hero = () => {
 
 
                         <a
-                            href="#"
+                            href="/contact"
                             className="block w-full rounded text-white px-12 py-3 text-sm font-medium bg-rose-600 shadow hover:bg-rose-700 focus:outline-none focus:ring active:text-rose-500 sm:w-auto"
                         >
-                            Explore
+                            Contact Us
                         </a>
                     </div>
                 </div>
