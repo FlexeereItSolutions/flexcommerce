@@ -81,7 +81,7 @@ const Checkout = () => {
             <h1 className='text-center mt-16 font-bold text-blue-900 underline text-2xl'>Checkout and Payment</h1>
             <div className="container px-5 py-12 mx-auto">
                 <div className="lg:w-4/5 mx-auto flex  flex-wrap">
-                    <div alt="ecommerce" className="lg:w-1/2 shadow-sm shadow-gray-500 p-6 w-full h-fit  object-cover object-center rounded" >
+                    <div alt="Pro IP" className="lg:w-1/2 shadow-sm shadow-gray-500 p-6 w-full h-fit  object-cover object-center rounded" >
                         <p className='text-xl font-semibold  underline text-blue-500'>ITEMS</p>
                         <br />
                         <ul className="space-y-4">
