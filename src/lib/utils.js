@@ -23,7 +23,7 @@ const sendOTP = async (to, otp) => {
     });
 
     await transport.sendMail({
-        from: PRO ID<${process.env.MAIL_USERNAME}>,
+        from: "PRO ID" + process.env.MAIL_USERNAME,
         to: to,
         subject: "Email verification",
         html: `<body style="font-family: Arial, sans-serif; margin: 0; padding: 0;">
@@ -61,7 +61,7 @@ const sendPasswordResetOTP = async (to, otp, username) => {
     });
 
     await transport.sendMail({
-        from: <${process.env.MAIL_USERNAME}>,
+        from: `${process.env.MAIL_USERNAME}`,
         to: to,
         subject: "Password Reset",
         html: `<body style="font-family: Arial, sans-serif; margin: 0; padding: 0;">
