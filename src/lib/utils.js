@@ -14,7 +14,8 @@ async function checkHash(value, hashedValue) {
 
 const sendOTP = async (to, otp) => {
     let transport = nodemailer.createTransport({
-        service: 'gmail',
+        host: process.env.MAIL_SMTP_SERVER_HOST,
+        port: process.env.MAIL_SMTP_SERVER_PORT,
         auth: {
             user: process.env.MAIL_USERNAME,
             pass: process.env.MAIL_PASSWORD,
@@ -22,7 +23,7 @@ const sendOTP = async (to, otp) => {
     });
 
     await transport.sendMail({
-        from: `<${process.env.MAIL_USERNAME}>`,
+        from: PRO ID<${process.env.MAIL_USERNAME}>,
         to: to,
         subject: "Email verification",
         html: `<body style="font-family: Arial, sans-serif; margin: 0; padding: 0;">
@@ -51,7 +52,8 @@ const sendOTP = async (to, otp) => {
 
 const sendPasswordResetOTP = async (to, otp, username) => {
     let transport = nodemailer.createTransport({
-        service: 'gmail',
+        host: process.env.MAIL_SMTP_SERVER_HOST,
+        port: process.env.MAIL_SMTP_SERVER_PORT,
         auth: {
             user: process.env.MAIL_USERNAME,
             pass: process.env.MAIL_PASSWORD,
@@ -59,7 +61,7 @@ const sendPasswordResetOTP = async (to, otp, username) => {
     });
 
     await transport.sendMail({
-        from: `<${process.env.MAIL_USERNAME}>`,
+        from: <${process.env.MAIL_USERNAME}>,
         to: to,
         subject: "Password Reset",
         html: `<body style="font-family: Arial, sans-serif; margin: 0; padding: 0;">
