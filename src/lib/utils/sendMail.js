@@ -4,7 +4,8 @@ const sendEmail = async(data) => {
     const { name, email, subject, message } = data;
     try {
         let transport = nodemailer.createTransport({
-            service: 'gmail',
+            host: process.env.MAIL_SMTP_SERVER_HOST,
+            port: process.env.MAIL_SMTP_SERVER_PORT,
             auth: {
                 user: process.env.MAIL_USERNAME,
                 pass: process.env.MAIL_PASSWORD,
