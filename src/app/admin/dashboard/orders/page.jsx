@@ -26,7 +26,7 @@ const AdminOrders = () => {
             }
         }
         getOrders()
-    }, [])
+    }, [router])
     return (
         <section>
             <div className="mx-auto max-w-screen-xl px-4  py-4 sm:px-6 sm:py-12 lg:px-8">
@@ -71,15 +71,20 @@ const AdminOrders = () => {
                                 return (tab == "" || tab == item.orderStatus) && <li key={index} className="flex justify-between border-[1px] p-3 rounded-lg shadow-sm hover:scale-[1.02] transition-all hover:shadow-gray-600 items-center gap-4">
 
                                     <div className="flex items-center space-x-2">
-                                        <Image
-                                            src={item.item.image}
-                                            alt=""
-                                            height={64}
-                                            width={64}
-                                            className="size-16 rounded object-cover"
-                                        />
+                                    <Image
+                                        src={item.item?.image || '/placeholder.png'}
+                                        alt="item image"
+                                        height={64}
+                                        width={64}
+                                        className="size-16 rounded object-cover"
+                                    />
                                         <div className="flex flex-col">
-                                            <Link href={`/admin/dashboard/orders/${item._id}`} className="text-sm hover:underline text-gray-900">{item.item.name}</Link>
+                                        <Link
+                                            href={`/admin/dashboard/orders/${item._id}`}
+                                            className="text-sm hover:underline text-gray-900"
+                                        >
+                                            {item.item?.name || 'Unnamed Item'}
+                                        </Link>
 
                                             <dl className="mt-0.5 space-y-px text-[10px] text-gray-600">
                                                 <div>
