@@ -11,7 +11,7 @@ const Hero = () => {
             ></div>
 
             <div
-                className="relative mx-auto max-w-screen-xl px-4 py-32 sm:px-6 lg:flex lg:h-screen lg:items-center lg:px-8"
+                className="relative mx-auto max-w-screen-xl px-4 py-32 sm:px-6 lg:flex lg:h-1/2 lg:items-center lg:px-8"
             >
                 <div className="max-w-xl text-left">
                     <h1 className="text-3xl text-white font-extrabold sm:text-5xl">
@@ -21,18 +21,17 @@ const Hero = () => {
                     </h1>
 
                     <p className="mt-4 max-w-lg text-gray-300 sm:text-xl/relaxed">
-                        Lorem ipsum dolor sit amet consectetur, adipisicing elit. Nesciunt illo tenetur fuga ducimus
-                        numquam ea!
+                        Welcome to our platform, your one-stop solution for VPS services, Pro IP, and cloud machine needs. We provide robust, scalable, and secure virtual private servers.
                     </p>
 
                     <div className="mt-8 flex flex-wrap gap-4 text-center">
 
 
                         <a
-                            href="#"
+                            href="/contact"
                             className="block w-full rounded text-white px-12 py-3 text-sm font-medium bg-rose-600 shadow hover:bg-rose-700 focus:outline-none focus:ring active:text-rose-500 sm:w-auto"
                         >
-                            Explore
+                            Contact Us
                         </a>
                     </div>
                 </div>
