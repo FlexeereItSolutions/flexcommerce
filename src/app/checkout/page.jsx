@@ -1,6 +1,6 @@
 "use client"
 import { useRouter } from 'next/navigation'
-import { fetchCart } from "../actions"
+import { fetchCart, getPaymentQR } from "../actions"
 import React, { useLayoutEffect, useState } from 'react'
 import { toast } from "react-toastify"
 import Navbar from '../../components/Navbar'
@@ -10,7 +10,7 @@ import Image from "next/image"
 const Checkout = () => {
     const [ss, setSS] = useState()
     const [transactionNumber, setTransactionNumber] = useState()
-
+    const [qr, setqr] = useState()
     const [cart, setCart] = useState([])
     const [total, setTotal] = useState()
     const [isLoading, setIsLoading] = useState(false)
@@ -31,6 +31,8 @@ const Checkout = () => {
                 setCart(c.cart)
                 const subtotal = calculateSubtotal(c.cart)
                 setTotal(subtotal)
+                const data = await getPaymentQR()
+                if (data.success) setqr(data.payment.payment_qr)
             }
             else {
                 router.push("/login")
@@ -81,7 +83,7 @@ const Checkout = () => {
             <h1 className='text-center mt-16 font-bold text-blue-900 underline text-2xl'>Checkout and Payment</h1>
             <div className="container px-5 py-12 mx-auto">
                 <div className="lg:w-4/5 mx-auto flex  flex-wrap">
-                    <div alt="Pro IP" className="lg:w-1/2 shadow-sm shadow-gray-500 p-6 w-full h-fit  object-cover object-center rounded" >
+                    <div alt="ecommerce" className="lg:w-1/2 shadow-sm shadow-gray-500 p-6 w-full h-fit  object-cover object-center rounded" >
                         <p className='text-xl font-semibold  underline text-blue-500'>ITEMS</p>
                         <br />
                         <ul className="space-y-4">
@@ -118,7 +120,7 @@ const Checkout = () => {
                     <div className="lg:w-1/2 w-full lg:pl-10  lg:mt-0">
                         <h1 className="text-gray-900 text-xl mb-2 title-font font-medium">Payment QR Code</h1>
                         <div className="flex mb-4">
-                            <Image src={"/QRcode.jpeg"} width={1500} height={1500} className='  max-w-full h-auto object-cover object-center rounded' />
+                            {qr && <Image src={qr} width={1500} height={1500} className='  max-w-full h-auto object-cover object-center rounded' />}
                         </div>
                         <form onSubmit={handleCheckout}>
                             <div className='flex flex-col'>

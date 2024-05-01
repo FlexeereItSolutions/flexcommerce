@@ -13,7 +13,7 @@ function AcceptModal({ show, onHide, orderid }) {
     const handleSubmit = async (e) => {
         e.preventDefault()
         if (!ip || !username || !password) return setError("All fields are mandatory")
-        const data = await acceptOrder(orderid, localStorage.getItem("token"), ip, username, password)
+        const data = await acceptOrder(orderid, localStorage.getItem("token"), ip, username, password, new Date())
         if (data.success) {
             router.refresh()
             setIp("")

@@ -1,6 +1,6 @@
 "use client"
 import { useParams, useRouter } from 'next/navigation'
-import { fetchOrder } from '../../../../actions'
+import { fetchOrder, rejectOrder } from '../../../../actions'
 import { useLayoutEffect, useState } from 'react'
 import { toast } from "react-toastify"
 import ImageModal from '../../../../../components/ImageModal'
@@ -13,6 +13,41 @@ const AdminOrderDetail = () => {
     const router = useRouter()
     const [isOpen, setIsOpen] = useState(false)
     const [accept, setAccept] = useState(false)
+
+    function formatDate(date) {
+        const monthNames = [
+            'January', 'February', 'March', 'April', 'May', 'June',
+            'July', 'August', 'September', 'October', 'November', 'December'
+        ];
+
+        const day = date.getDate();
+        const month = monthNames[date.getMonth()];
+        const year = date.getFullYear();
+        let hours = date.getHours();
+        let minutes = date.getMinutes();
+
+        // Ensure two-digit format for hours and minutes
+        hours = hours.toString().padStart(2, '0');
+        minutes = minutes.toString().padStart(2, '0');
+
+        // Determine AM/PM
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+
+        // Convert to 12-hour format
+        hours = (hours % 12) || 12;
+
+        return `${day} ${month}, ${year} at ${hours}:${minutes} ${ampm}`;
+    }
+
+    const handleReject = async () => {
+        if (!localStorage.getItem("token")) return router.push("/admin/login")
+        const data = await rejectOrder(id, localStorage.getItem("token"))
+        if (data.success) {
+            toast(data.message, { type: "success" })
+            setOrder(prev => { return { ...prev, orderStatus: "Rejected" } })
+        }
+        else toast(data.message, { type: "error" })
+    }
     useLayoutEffect(() => {
         const getOrder = async () => {
             if (!localStorage.getItem("token")) return router.push("/admin/login")
@@ -38,6 +73,7 @@ const AdminOrderDetail = () => {
 
                     <div className="lg:w-1/2 w-full lg:pl-10 mt-6 lg:mt-0">
                         <h1 className="text-gray-500 text-sm title-font font-medium mb-1">OrderID: {order._id}</h1>
+                        <h1 className="text-gray-500 text-sm title-font font-medium mb-1">Date: {formatDate(order.date)}</h1>
 
                         <h1 className="text-gray-900 text-3xl title-font font-medium mb-1">{order.item.name} </h1>
                         <div className={`${order.orderStatus == "Accepted" ? "text-white bg-green-400 px-3 py-1 rounded-full" : "text-white bg-red-400 px-3 py-1 rounded-full"} w-fit text-sm text-gray-600 transition`}>
@@ -48,10 +84,10 @@ const AdminOrderDetail = () => {
                         <p className="title-font font-medium text-sm mt-2 text-gray-900">Transaction No: {order.transactionNumber}</p>
                         <p className="title-font font-medium text-2xl text-gray-900">Price: ₹{order.subtotal}</p>
                         <button onClick={() => setIsOpen(true)} className="flex text-white bg-indigo-500 border-0 py-1 px-3 focus:outline-none hover:bg-indigo-600 rounded">View Payment Screenshot</button>
-                        {order.orderStatus != "Accepted" ? <div className="flex gap-2">
+                        {order.orderStatus != "Accepted" && order.orderStatus != "Rejected" ? <div className="flex gap-2">
                             <button onClick={() => setAccept(true)} className="flex text-white mt-4 bg-green-500 border-0 py-1 px-2 focus:outline-none  rounded">Accept Order</button>
-                            {/* <button className="flex text-white mt-4 bg-red-500 border-0 py-1 px-2 focus:outline-none rounded">Reject Order</button> */}
-                        </div> : <>
+                            <button onClick={handleReject} className="flex text-white mt-4 bg-red-500 border-0 py-1 px-2 focus:outline-none rounded">Reject Order</button>
+                        </div> : order.orderStatus == "Accepted" && <>
                             <p className='text-black text-xl font-bold'>Credentials</p>
                             <p className='text-black'>IP Address</p>
                             <div className="flex bg-black w-fit p-2 rounded-md">

@@ -68,6 +68,12 @@ const AdminHeader = () => {
                     >
                         Users
                     </Link>
+                    <Link
+                        href="/admin/dashboard/payment-qr"
+                        className="shrink-0 rounded-lg px-4 border-[1px] hover:bg-blue-400 hover:text-white p-2 text-sm font-medium text-black "
+                    >
+                        Payment QR
+                    </Link>
                     <LogOut onClick={() => {
                         localStorage.removeItem("token")
                         router.push("/admin/login")

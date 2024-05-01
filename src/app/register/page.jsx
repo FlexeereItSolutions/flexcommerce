@@ -102,7 +102,7 @@ const Page = () => {
                         </a>
 
                         <h2 className="mt-6 text-2xl font-bold text-white sm:text-3xl md:text-4xl">
-                            Welcome to Pro IP
+                            Welcome to Ecommerce
                         </h2>
 
 
@@ -132,7 +132,7 @@ const Page = () => {
                             </a>
 
                             <h1 className="mt-2 text-2xl font-bold text-gray-400 ">
-                                Welcome to Pro IP
+                                Welcome to Ecommerce
                             </h1>
                             <span className='mt-5 font-bold text-4xl underline'>{otpSent ? "Verify Email" : "Register"}</span>
 

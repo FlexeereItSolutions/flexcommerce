@@ -10,6 +10,7 @@ const OrderSchema = new Schema({
     ip_address: String,
     username: String,
     password: String,
+    expiry_date: Date,
     date: {
         type: Date,
         default: Date.now

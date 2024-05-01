@@ -4,7 +4,7 @@ import { checkHash } from "../../../lib/utils";
 import jwt from 'jsonwebtoken'
 import connectToDatabase from "../../../lib/connect";
 
-export const POST = async(req) => {
+export const POST = async (req) => {
     const { email, otp } = await req.json();
     await connectToDatabase()
     const user = await User.findOne({ email: email });
@@ -15,7 +15,8 @@ export const POST = async(req) => {
         let user = await User.updateOne({ email: email }, { "$set": { isActive: true } })
         let jwtToken = jwt.sign(userId, process.env.JWT_SECRET)
         return NextResponse.json({ success: true, token: jwtToken })
-    } else {
+    }
+    else {
         return NextResponse.json({ success: false, 'message': 'Invalid OTP' })
     }
 }

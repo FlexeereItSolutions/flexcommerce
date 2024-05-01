@@ -2,6 +2,7 @@
 
 import User from "../models/User";
 import Order from "../models/Order";
+import Payment from "../models/Payment"
 import { checkHash, createHash, sendOTP } from "../lib/utils";
 import connectToDatabase from "../lib/connect";
 import jwt from "jsonwebtoken"
@@ -180,23 +181,55 @@ const fetchAdminOrders = async (token) => {
     return { success: false, message: "Action not allowed" }
 
 }
+function isDateTimeInPast(inputDateTime) {
+    var currentDateTime = new Date();
+    return inputDateTime < currentDateTime;
+}
 
 const fetchOrder = async (id, token) => {
     const data = await verifyUser(token)
     if (data.userValid) {
         await connectToDatabase()
         const order = await Order.findById(id)
+        if (order.orderStatus == "Accepted" && isDateTimeInPast(order.expiry_date)) {
+            if (order.expired == false) {
+                await Order.findByIdAndUpdate(id, { $set: { orderStatus: "Expired" } })
+            }
+            let newOrder = { _id: order._id, userId: order.userId, item: order.item, orderStatus: "Expired", transactionNumber: order.transactionNumber, payment_ss: order.payment_ss, expiry_date: order.expiry_date }
+            return { success: true, order: newOrder }
+        }
         return { success: true, order: order }
     }
     return { success: false, message: "Action not allowed" }
 
 }
 
-const acceptOrder = async (orderid, token, ip, username, password) => {
+const rejectOrder = async (orderid, token) => {
     const data = await verifyUser(token)
     if (data.userValid) {
         await connectToDatabase()
-        const order = await Order.findByIdAndUpdate(orderid, { $set: { ip_address: ip, username: username, password: password, orderStatus: "Accepted" } })
+        const order = await Order.findByIdAndUpdate(orderid, { $set: { orderStatus: "Rejected" } })
+        return { success: true, message: "Order Rejected" }
+    }
+    return { success: false, message: "Action not allowed" }
+}
+
+const cancelOrder = async (orderid, token) => {
+    const data = await verifyUser(token)
+    if (data.userValid) {
+        await connectToDatabase()
+        const order = await Order.findByIdAndUpdate(orderid, { $set: { orderStatus: "Cancelled" } })
+        return { success: true, message: "Order Cancelled" }
+    }
+    return { success: false, message: "Action not allowed" }
+}
+
+const acceptOrder = async (orderid, token, ip, username, password, currentDate) => {
+    const data = await verifyUser(token)
+    if (data.userValid) {
+        await connectToDatabase()
+        currentDate.setDate(currentDate.getDate() + 30)
+        const order = await Order.findByIdAndUpdate(orderid, { $set: { ip_address: ip, username: username, password: password, orderStatus: "Accepted", expiry_date: currentDate } })
         return { success: true, message: "Order Accepted" }
     }
     return { success: false, message: "Action not allowed" }
@@ -242,4 +275,12 @@ const updateUser = async (user, token, userid) => {
     }
 }
 
-export { sendVerificationOTP, verifyOTP, resendOTP, verifyUser, deleteProduct, fetchProduct, getProducts, addToCart, fetchCart, removeFromCart, fetchOrders, fetchAdminOrders, fetchOrder, acceptOrder, fetchUsers, fetchUserOrders, updateUser }
+const getPaymentQR = async () => {
+    await connectToDatabase()
+    const qr = await Payment.find({})
+    console.log(qr)
+    if (qr.length == 0) return { success: false }
+    else return { success: true, payment: qr[0] }
+}
+
+export { sendVerificationOTP, verifyOTP, resendOTP, verifyUser, deleteProduct, fetchProduct, getProducts, addToCart, fetchCart, removeFromCart, fetchOrders, fetchAdminOrders, fetchOrder, acceptOrder, fetchUsers, fetchUserOrders, updateUser, cancelOrder, rejectOrder, getPaymentQR }

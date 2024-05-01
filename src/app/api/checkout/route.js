@@ -24,10 +24,14 @@ export const POST = async (req) => {
     try {
         const file = await ss.arrayBuffer()
         const base64 = Buffer.from(file).toString('base64')
+        console.log("before cloudinary")
         const uploadedImage = await cloudinary.uploader.upload(`data:${ss.type};base64,${base64}`)
+        console.log("after cloudinary")
 
         // upload to cloudinary with the mimetype ad from the file
+        console.log("after mongo")
         await connectToDatabase()
+        console.log("after mongo")
         const user = await User.findById(userid)
         const cartItems = user.cartItems
         for (let item of cartItems) {
@@ -45,6 +49,6 @@ export const POST = async (req) => {
         return NextResponse.json({ success: true, message: "Successfully placed order" })
     }
     catch (error) {
-        return NextResponse.json({ success: false, message: "Something went wrong!" })
+        return NextResponse.json({ success: false, message: "Something went wrong!", error })
     }
 }

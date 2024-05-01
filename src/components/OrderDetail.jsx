@@ -1,6 +1,6 @@
 "use client"
 import { useParams, useRouter } from 'next/navigation'
-import { fetchOrder } from "../app/actions"
+import { fetchOrder, cancelOrder } from "../app/actions"
 import { useLayoutEffect, useState } from 'react'
 import { toast } from "react-toastify"
 import ImageModal from './ImageModal'
@@ -12,6 +12,38 @@ const OrderDetail = () => {
     const [order, setOrder] = useState()
     const router = useRouter()
     const [isOpen, setIsOpen] = useState(false)
+
+    function formatDate(date) {
+        const monthNames = [
+            'January', 'February', 'March', 'April', 'May', 'June',
+            'July', 'August', 'September', 'October', 'November', 'December'
+        ];
+
+        const day = date.getDate();
+        const month = monthNames[date.getMonth()];
+        const year = date.getFullYear();
+        let hours = date.getHours();
+        let minutes = date.getMinutes();
+
+        // Ensure two-digit format for hours and minutes
+        hours = hours.toString().padStart(2, '0');
+        minutes = minutes.toString().padStart(2, '0');
+
+        // Determine AM/PM
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+
+        // Convert to 12-hour format
+        hours = (hours % 12) || 12;
+
+        return `${day} ${month}, ${year} at ${hours}:${minutes} ${ampm}`;
+    }
+
+    const handleOrderCancel = async () => {
+        if (!localStorage.getItem("token")) return router.push("/login")
+        const data = await cancelOrder(id, localStorage.getItem("token"))
+        if (data.success) toast(data.message, { type: "success" })
+        else toast(data.message, { type: "error" })
+    }
     useLayoutEffect(() => {
         const getOrder = async () => {
             if (!localStorage.getItem("token")) return router.push("/login")
@@ -38,6 +70,7 @@ const OrderDetail = () => {
 
                     <div className="lg:w-1/2 w-full lg:pl-10 mt-6 lg:mt-0">
                         <h1 className="text-gray-500 text-sm title-font font-medium mb-1">OrderID: {order._id}</h1>
+                        <h1 className="text-gray-500 text-sm title-font font-medium mb-1">Date: {formatDate(order.date)}</h1>
 
                         <h1 className="text-gray-900 text-3xl title-font font-medium mb-1">{order.item.name} </h1>
                         <div className={`${order.orderStatus == "Accepted" ? "text-white bg-green-400 px-3 py-1 rounded-full" : "text-white bg-red-400 px-3 py-1 rounded-full"} w-fit text-sm text-gray-600 transition`}>
@@ -48,6 +81,7 @@ const OrderDetail = () => {
                         <p className="title-font font-medium text-sm mt-2 text-gray-900">Transaction No: {order.transactionNumber}</p>
                         <p className="title-font font-medium text-2xl text-gray-900">Price: ₹{order.subtotal}</p>
                         <button onClick={() => setIsOpen(true)} className="flex text-white bg-indigo-500 border-0 py-1 px-3 focus:outline-none hover:bg-indigo-600 rounded">View Payment Screenshot</button>
+                        {(order.orderStatus != "Cancelled" && order.orderStatus != "Rejected") && <button onClick={handleOrderCancel} className="flex mt-3 text-white bg-red-500 border-0 py-1 px-3 focus:outline-none hover:bg-red-600 rounded">Cancel Order</button>}
                         {order.orderStatus == "Accepted" && <>
                             <p className='text-black text-xl font-bold'>Credentials</p>
                             <p className='text-black'>IP Address</p>

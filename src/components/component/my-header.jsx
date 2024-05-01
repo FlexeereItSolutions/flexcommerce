@@ -19,6 +19,7 @@ export function MyHeader() {
             <SelectItem value="products">Manage Products</SelectItem>
             <SelectItem value="add-product">Add Product</SelectItem>
             <SelectItem value="users">Users</SelectItem>
+            <SelectItem value="payment-qr">Payment QR</SelectItem>
           </SelectGroup>
         </SelectContent>
       </Select>

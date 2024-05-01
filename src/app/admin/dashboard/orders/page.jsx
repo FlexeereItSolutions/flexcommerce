@@ -1,6 +1,6 @@
 "use client"
 import Image from 'next/image'
-import { useLayoutEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useState } from 'react'
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { fetchAdminOrders } from "../../../actions"
@@ -11,7 +11,32 @@ const AdminOrders = () => {
     const [tab, setTab] = useState("")
     const router = useRouter()
     const [isLoading, setIsLoading] = useState(true)
+    const [currentOrders, setCurrentOrders] = useState([])
 
+    function formatDate(date) {
+        const monthNames = [
+            'January', 'February', 'March', 'April', 'May', 'June',
+            'July', 'August', 'September', 'October', 'November', 'December'
+        ];
+
+        const day = date.getDate();
+        const month = monthNames[date.getMonth()];
+        const year = date.getFullYear();
+        let hours = date.getHours();
+        let minutes = date.getMinutes();
+
+        // Ensure two-digit format for hours and minutes
+        hours = hours.toString().padStart(2, '0');
+        minutes = minutes.toString().padStart(2, '0');
+
+        // Determine AM/PM
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+
+        // Convert to 12-hour format
+        hours = (hours % 12) || 12;
+
+        return `${day} ${month}, ${year} at ${hours}:${minutes} ${ampm}`;
+    }
 
     useLayoutEffect(() => {
         const getOrders = async () => {
@@ -19,6 +44,7 @@ const AdminOrders = () => {
             const c = await fetchAdminOrders(localStorage.getItem("token"))
             if (c.success) {
                 setOrders(c.orders)
+                setCurrentOrders(c.orders)
                 setIsLoading(false)
             }
             else {
@@ -26,7 +52,28 @@ const AdminOrders = () => {
             }
         }
         getOrders()
-    }, [router])
+    }, [])
+
+    useEffect(() => {
+        switch (tab) {
+            case "Accepted":
+                setCurrentOrders(orders.filter(order => order.orderStatus == "Accepted"))
+                break;
+            case "Pending":
+                setCurrentOrders(orders.filter(order => order.orderStatus == "Pending"))
+                break;
+            case "Cancelled":
+                setCurrentOrders(orders.filter(order => order.orderStatus == "Cancelled"))
+                break;
+            case "Rejected":
+                setCurrentOrders(orders.filter(order => order.orderStatus == "Rejected"))
+                break;
+            default:
+                setCurrentOrders(orders)
+                break;
+        }
+    }, [tab, router])
+
     return (
         <section>
             <div className="mx-auto max-w-screen-xl px-4  py-4 sm:px-6 sm:py-12 lg:px-8">
@@ -61,23 +108,39 @@ const AdminOrders = () => {
                                     >
                                         Pending
                                     </button>
+                                    <button
+                                        onClick={() => setTab("Cancelled")}
+                                        className={`shrink-0 border-gray-300 border-b-white p-3 text-sm text-gray-500
+                                         font-medium ${tab == "Cancelled" && "text-sky-600 rounded-t-lg border"}`}
+                                    >
+                                        Cancelled
+                                    </button>
+                                    <button
+                                        onClick={() => setTab("Rejected")}
+                                        className={`shrink-0 border-gray-300 border-b-white p-3 text-sm text-gray-500
+                                         font-medium ${tab == "Rejected" && "text-sky-600 rounded-t-lg border"}`}
+                                    >
+                                        Rejected
+                                    </button>
                                 </nav>
                             </div>
                         </div>
                     </div>
                     <div className="mt-8">
                         <ul className="space-y-4">
-                            {orders && orders.length > 0 ? orders.map((item, index) => {
-                                return (tab == "" || tab == item.orderStatus) && <li key={index} className="flex justify-between border-[1px] p-3 rounded-lg shadow-sm hover:scale-[1.02] transition-all hover:shadow-gray-600 items-center gap-4">
+                            {currentOrders && currentOrders.length > 0 ? currentOrders.map((item, index) => {
+                                return <li key={index} className="flex justify-between border-[1px] p-3 rounded-lg shadow-sm hover:scale-[1.02] transition-all hover:shadow-gray-600 items-center gap-4">
 
                                     <div className="flex items-center space-x-2">
-                                    <Image
-                                        src={item.item?.image || '/placeholder.png'}
-                                        alt="item image"
-                                        height={64}
-                                        width={64}
-                                        className="size-16 rounded object-cover"
-                                    />
+                                    {item.item && (
+                                        <Image
+                                            src={item.item.image}
+                                            alt=""
+                                            height={64}
+                                            width={64}
+                                            className="size-16 rounded object-cover"
+                                        />
+                                    )}
                                         <div className="flex flex-col">
                                         <Link
                                             href={`/admin/dashboard/orders/${item._id}`}
@@ -90,6 +153,13 @@ const AdminOrders = () => {
                                                 <div>
                                                     <dt className="inline">OrderID:{" "}</dt>
                                                     <dd className="inline">{item._id}</dd>
+                                                </div>
+
+                                            </dl>
+                                            <dl className="mt-0.5 space-y-px text-[10px] font-medium text-gray-600">
+                                                <div>
+                                                    <dt className="inline">Date:{" "}</dt>
+                                                    <dd className="inline">{formatDate(item.date)}</dd>
                                                 </div>
 
                                             </dl>

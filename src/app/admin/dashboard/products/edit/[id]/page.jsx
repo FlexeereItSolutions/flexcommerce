@@ -105,7 +105,8 @@ const Page = () => {
                     onClick={() => { setIsImgChange(true); inputRef.current.click(); }}
                     className="inline-flex cursor-pointer bg-green-500 text-white items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 ml-auto">
                     <input ref={inputRef} className="hidden inset-0 opacity-0 cursor-pointer" type="file" onChange={e => { setImage(e.target.files[0]); setIsImgChange(true) }} />
-                    Change Image</div>
+                    Change Image
+                </div>
             </div>
             <span className='text-red-500 mx-auto ml-6 text-center'>{error}</span>
             <div className="flex items-center p-6">
