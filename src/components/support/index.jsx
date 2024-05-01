@@ -78,10 +78,10 @@ const SupportPage = () => {
         </p>
         <div className="flex items-center mt-4 sm:mt-0">
   <a href="https://t.ly/68VkF" target="_blank" rel="noopener noreferrer" className="ml-4">
-    <img src="/whatsapp-logo.png" alt="WhatsApp" className="h-6" />
+    <img src="/whatsapp-logo.png" alt="WhatsApp" className="h-12" />
   </a>
   <a href="https://t.me/+0TD8yBfFQVExZmFl" target="_blank" rel="noopener noreferrer" className="ml-4">
-    <img src="/telegram-logo.png" alt="Telegram" className="h-6" />
+    <img src="/telegram-logo.png" alt="Telegram" className="h-12" />
   </a>
 </div>
 
