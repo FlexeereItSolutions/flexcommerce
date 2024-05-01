@@ -120,7 +120,7 @@ const Checkout = () => {
                     <div className="lg:w-1/2 w-full lg:pl-10  lg:mt-0">
                         <h1 className="text-gray-900 text-xl mb-2 title-font font-medium">Payment QR Code</h1>
                         <div className="flex mb-4">
-                            {qr && <Image src={qr} width={1500} height={1500} className='  max-w-full h-auto object-cover object-center rounded' />}
+                            {qr && <Image src={qr} width={300} height={300} className='max-w-full h-auto object-cover object-center rounded' />}
                         </div>
                         <form onSubmit={handleCheckout}>
                             <div className='flex flex-col'>

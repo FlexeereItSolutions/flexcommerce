@@ -12,7 +12,7 @@ async function checkHash(value, hashedValue) {
     return isValid;
 }
 
-const sendOTP = async (to, otp) => {
+const sendOTP = async(to, otp) => {
     let transport = nodemailer.createTransport({
         host: process.env.MAIL_SMTP_SERVER_HOST,
         port: process.env.MAIL_SMTP_SERVER_PORT,
@@ -23,7 +23,7 @@ const sendOTP = async (to, otp) => {
     });
 
     await transport.sendMail({
-        from: `PRO ID<${process.env.MAIL_USERNAME}>`,
+        from: `PRO IP<${process.env.MAIL_USERNAME}>`,
         to: to,
         subject: "Email verification",
         html: `<body style="font-family: Arial, sans-serif; margin: 0; padding: 0;">
@@ -50,7 +50,7 @@ const sendOTP = async (to, otp) => {
     })
 }
 
-const sendPasswordResetOTP = async (to, otp, username) => {
+const sendPasswordResetOTP = async(to, otp, username) => {
     let transport = nodemailer.createTransport({
         host: process.env.MAIL_SMTP_SERVER_HOST,
         port: process.env.MAIL_SMTP_SERVER_PORT,
