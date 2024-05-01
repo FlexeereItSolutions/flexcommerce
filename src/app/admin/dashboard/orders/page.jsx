@@ -38,6 +38,17 @@ const AdminOrders = () => {
         return `${day} ${month}, ${year} at ${hours}:${minutes} ${ampm}`;
     }
 
+    function getRemainingTime(expiryDate) {
+        const currentDate = new Date();
+        const timeDifference = expiryDate.getTime() - currentDate.getTime();
+
+        const daysRemaining = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
+        const hoursRemaining = Math.floor((timeDifference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutesRemaining = Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60));
+
+        return `${daysRemaining} days, ${hoursRemaining} hours, ${minutesRemaining} minutes remaining`;
+    }
+
     useLayoutEffect(() => {
         const getOrders = async () => {
             if (!localStorage.getItem("token")) return router.push("/admin/login")
@@ -157,47 +168,52 @@ const AdminOrders = () => {
 
                                             </dl>
                                             <dl className="mt-0.5 space-y-px text-[10px] font-medium text-gray-600">
-                                                <div>
-                                                    <dt className="inline">Date:{" "}</dt>
-                                                    <dd className="inline">{formatDate(item.date)}</dd>
-                                                </div>
-
-                                            </dl>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex  flex-col items-center justify-end">
-                                        <div className={`${item.orderStatus == "Accepted" ? "text-white bg-green-400 px-3 py-1 rounded-full" : "text-white bg-red-400 px-3 py-1 rounded-full"} text-gray-600 transition`}>
-                                            {item.orderStatus}
-                                        </div>
-                                        <dl className="mt-0.5 space-y-px text-[12px] text-gray-600">
                                             <div>
-                                                <dt className="inline">Price:</dt>
-                                                <dd className="inline">₹{item.subtotal}</dd>
-                                            </div>
+                                                   <dt className="inline">Date:{" "}</dt>
+                                                   <dd className="inline">{formatDate(item.date)}</dd>
+                                               </div>
+                                               {item.orderStatus === "Accepted" && (
+                                                   <div>
+                                                       <dt className="inline">Expires in:{" "}</dt>
+                                                       <dd className="inline">{getRemainingTime(item.expiry_date)}</dd>
+                                                   </div>
+                                               )}
+                                           </dl>
+                                       </div>
+                                   </div>
 
-                                        </dl>
-                                    </div>
-                                </li>
-                            }) : <>
-                                <div className='mt-16 flex flex-col items-center gap-2'>
-                                    <Ghost className='h-8 w-8 text-zinc-800' />
-                                    <h3 className='font-semibold text-xl'>
-                                        No orders yet
-                                    </h3>
+                                   <div className="flex  flex-col items-center justify-end">
+                                       <div className={`${item.orderStatus == "Accepted" ? "text-white bg-green-400 px-3 py-1 rounded-full" : "text-white bg-red-400 px-3 py-1 rounded-full"} text-gray-600 transition`}>
+                                           {item.orderStatus}
+                                       </div>
+                                       <dl className="mt-0.5 space-y-px text-[12px] text-gray-600">
+                                           <div>
+                                               <dt className="inline">Price:</dt>
+                                               <dd className="inline">₹{item.subtotal}</dd>
+                                           </div>
 
-                                </div>
-                            </>}
+                                       </dl>
+                                   </div>
+                               </li>
+                           }) : <>
+                               <div className='mt-16 flex flex-col items-center gap-2'>
+                                   <Ghost className='h-8 w-8 text-zinc-800' />
+                                   <h3 className='font-semibold text-xl'>
+                                       No orders yet
+                                   </h3>
+
+                               </div>
+                           </>}
 
 
-                        </ul>
+                       </ul>
 
-                    </div>
-                </div>
-            </div>
-        </section >
+                   </div>
+               </div>
+           </div>
+       </section >
 
-    )
+   )
 }
 
 export default AdminOrders

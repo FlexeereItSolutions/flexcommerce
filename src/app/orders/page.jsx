@@ -40,7 +40,16 @@ const Orders = () => {
     }
 
 
+    function getRemainingTime(expiryDate) {
+        const currentDate = new Date();
+        const timeDifference = expiryDate.getTime() - currentDate.getTime();
 
+        const daysRemaining = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
+        const hoursRemaining = Math.floor((timeDifference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutesRemaining = Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60));
+
+        return `${daysRemaining} days, ${hoursRemaining} hours, ${minutesRemaining} minutes remaining`;
+    }
     useLayoutEffect(() => {
         const getOrders = async () => {
             if (!localStorage.getItem("token")) return router.push("/login")
@@ -158,7 +167,12 @@ const Orders = () => {
                                                     <dt className="inline">Date:{" "}</dt>
                                                     <dd className="inline ">{formatDate(item.date)}</dd>
                                                 </div>
-
+                                                {item.orderStatus === "Accepted" && (
+                                                   <div>
+                                                       <dt className="inline">Expires in:{" "}</dt>
+                                                       <dd className="inline">{getRemainingTime(item.expiry_date)}</dd>
+                                                   </div>
+                                               )}
                                             </dl>
                                         </div>
                                     </div>
