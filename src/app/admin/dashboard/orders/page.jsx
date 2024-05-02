@@ -79,11 +79,14 @@ const AdminOrders = () => {
             case "Rejected":
                 setCurrentOrders(orders.filter(order => order.orderStatus == "Rejected"))
                 break;
+            case "Expired":
+                setCurrentOrders(orders.filter(order => order.orderStatus == "Expired"))
+                break;
             default:
                 setCurrentOrders(orders)
                 break;
         }
-    }, [tab, router])
+    }, [tab])
 
     return (
         <section>
@@ -97,7 +100,7 @@ const AdminOrders = () => {
                     <div>
                         <div className="">
                             <div className="border-b border-gray-200">
-                                <nav className="-mb-px flex gap-6">
+                                <nav className="-mb-px flex gap-3 overflow-y-scroll tab">
                                     <button
                                         onClick={() => setTab("")}
                                         className={`shrink-0  border-gray-300 border-b-white p-3 text-sm font-medium text-gray-500  ${tab == "" && "text-sky-600 rounded-t-lg border"}`}
@@ -133,6 +136,13 @@ const AdminOrders = () => {
                                     >
                                         Rejected
                                     </button>
+                                    <button
+                                        onClick={() => setTab("Expired")}
+                                        className={`shrink-0 border-gray-300 border-b-white p-3 text-sm text-gray-500
+                                         font-medium ${tab == "Expired" && "text-sky-600 rounded-t-lg border"}`}
+                                    >
+                                        Expired
+                                    </button>
                                 </nav>
                             </div>
                         </div>
@@ -143,22 +153,22 @@ const AdminOrders = () => {
                                 return <li key={index} className="flex justify-between border-[1px] p-3 rounded-lg shadow-sm hover:scale-[1.02] transition-all hover:shadow-gray-600 items-center gap-4">
 
                                     <div className="flex items-center space-x-2">
-                                    {item.item && (
-                                        <Image
-                                            src={item.item.image}
-                                            alt=""
-                                            height={64}
-                                            width={64}
-                                            className="size-16 rounded object-cover"
-                                        />
-                                    )}
+                                        {item.item && (
+                                            <Image
+                                                src={item.item.image}
+                                                alt=""
+                                                height={64}
+                                                width={64}
+                                                className="size-16 rounded object-cover"
+                                            />
+                                        )}
                                         <div className="flex flex-col">
-                                        <Link
-                                            href={`/admin/dashboard/orders/${item._id}`}
-                                            className="text-sm hover:underline text-gray-900"
-                                        >
-                                            {item.item?.name || 'Unnamed Item'}
-                                        </Link>
+                                            <Link
+                                                href={`/admin/dashboard/orders/${item._id}`}
+                                                className="text-sm hover:underline text-gray-900"
+                                            >
+                                                {item.item?.name || 'Unnamed Item'}
+                                            </Link>
 
                                             <dl className="mt-0.5 space-y-px text-[10px] text-gray-600">
                                                 <div>
@@ -168,52 +178,52 @@ const AdminOrders = () => {
 
                                             </dl>
                                             <dl className="mt-0.5 space-y-px text-[10px] font-medium text-gray-600">
+                                                <div>
+                                                    <dt className="inline">Date:{" "}</dt>
+                                                    <dd className="inline">{formatDate(item.date)}</dd>
+                                                </div>
+                                                {item.orderStatus == "Accepted" && item.expiry_date && (
+                                                    <div>
+                                                        <dt className="inline">Expires on:{" "}</dt>
+                                                        <dd className="inline">{formatDate(item.expiry_date)}</dd>
+                                                    </div>
+                                                )}
+                                            </dl>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex  flex-col items-center justify-end">
+                                        <div className={`${item.orderStatus == "Accepted" ? "text-white bg-green-400 px-3 py-1 rounded-full" : "text-white bg-red-400 px-3 py-1 rounded-full"} text-gray-600 transition`}>
+                                            {item.orderStatus}
+                                        </div>
+                                        <dl className="mt-0.5 space-y-px text-[12px] text-gray-600">
                                             <div>
-                                                   <dt className="inline">Date:{" "}</dt>
-                                                   <dd className="inline">{formatDate(item.date)}</dd>
-                                               </div>
-                                               {item.orderStatus === "Accepted" && (
-                                                   <div>
-                                                       <dt className="inline">Expires in:{" "}</dt>
-                                                       <dd className="inline">{getRemainingTime(item.expiry_date)}</dd>
-                                                   </div>
-                                               )}
-                                           </dl>
-                                       </div>
-                                   </div>
+                                                <dt className="inline">Price:</dt>
+                                                <dd className="inline">₹{item.subtotal}</dd>
+                                            </div>
 
-                                   <div className="flex  flex-col items-center justify-end">
-                                       <div className={`${item.orderStatus == "Accepted" ? "text-white bg-green-400 px-3 py-1 rounded-full" : "text-white bg-red-400 px-3 py-1 rounded-full"} text-gray-600 transition`}>
-                                           {item.orderStatus}
-                                       </div>
-                                       <dl className="mt-0.5 space-y-px text-[12px] text-gray-600">
-                                           <div>
-                                               <dt className="inline">Price:</dt>
-                                               <dd className="inline">₹{item.subtotal}</dd>
-                                           </div>
+                                        </dl>
+                                    </div>
+                                </li>
+                            }) : <>
+                                <div className='mt-16 flex flex-col items-center gap-2'>
+                                    <Ghost className='h-8 w-8 text-zinc-800' />
+                                    <h3 className='font-semibold text-xl'>
+                                        No orders yet
+                                    </h3>
 
-                                       </dl>
-                                   </div>
-                               </li>
-                           }) : <>
-                               <div className='mt-16 flex flex-col items-center gap-2'>
-                                   <Ghost className='h-8 w-8 text-zinc-800' />
-                                   <h3 className='font-semibold text-xl'>
-                                       No orders yet
-                                   </h3>
-
-                               </div>
-                           </>}
+                                </div>
+                            </>}
 
 
-                       </ul>
+                        </ul>
 
-                   </div>
-               </div>
-           </div>
-       </section >
+                    </div>
+                </div>
+            </div>
+        </section >
 
-   )
+    )
 }
 
 export default AdminOrders

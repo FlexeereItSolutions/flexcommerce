@@ -79,6 +79,9 @@ const Orders = () => {
             case "Cancelled":
                 setCurrentOrders(orders.filter(order => order.orderStatus == "Cancelled"))
                 break;
+            case "Expired":
+                setCurrentOrders(orders.filter(order => order.orderStatus == "Expired"))
+                break;
             default:
                 setCurrentOrders(orders)
                 break;
@@ -135,6 +138,13 @@ const Orders = () => {
                                     >
                                         Cancelled
                                     </button>
+                                    <button
+                                        onClick={() => setTab("Expired")}
+                                        className={`shrink-0 border-gray-300 border-b-white p-3 text-sm text-gray-500
+                                         font-medium ${tab == "Expired" && "text-sky-600 rounded-t-lg border"}`}
+                                    >
+                                        Expired
+                                    </button>
                                 </nav>
                             </div>
                         </div>
@@ -167,12 +177,12 @@ const Orders = () => {
                                                     <dt className="inline">Date:{" "}</dt>
                                                     <dd className="inline ">{formatDate(item.date)}</dd>
                                                 </div>
-                                                {item.orderStatus === "Accepted" && (
-                                                   <div>
-                                                       <dt className="inline">Expires in:{" "}</dt>
-                                                       <dd className="inline">{getRemainingTime(item.expiry_date)}</dd>
-                                                   </div>
-                                               )}
+                                                {item.orderStatus === "Accepted" && item.expiry_date && (
+                                                    <div>
+                                                        <dt className="inline">Expires in:{" "}</dt>
+                                                        <dd className="inline">{getRemainingTime(item.expiry_date)}</dd>
+                                                    </div>
+                                                )}
                                             </dl>
                                         </div>
                                     </div>

@@ -38,10 +38,27 @@ const OrderDetail = () => {
         return `${day} ${month}, ${year} at ${hours}:${minutes} ${ampm}`;
     }
 
+    function getRemainingTime(expiryDate) {
+        const currentDate = new Date();
+        const timeDifference = expiryDate.getTime() - currentDate.getTime();
+
+        const daysRemaining = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
+        const hoursRemaining = Math.floor((timeDifference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutesRemaining = Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60));
+        if (daysRemaining > 0) return `${daysRemaining} days ${hoursRemaining} hours`
+        if (hoursRemaining > 0) return `${hoursRemaining} hours ${minutesRemaining} minutes`
+        if (minutesRemaining > 0) return `${minutesRemaining} minutes`
+        return `${daysRemaining} days, ${hoursRemaining} hours, ${minutesRemaining} minutes remaining`;
+    }
+
     const handleOrderCancel = async () => {
         if (!localStorage.getItem("token")) return router.push("/login")
         const data = await cancelOrder(id, localStorage.getItem("token"))
-        if (data.success) toast(data.message, { type: "success" })
+        if (data.success) {
+            toast(data.message, { type: "success" })
+            setOrder(prev => { return { ...prev, orderStatus: "Cancelled" } })
+            return
+        }
         else toast(data.message, { type: "error" })
     }
     useLayoutEffect(() => {
@@ -71,6 +88,7 @@ const OrderDetail = () => {
                     <div className="lg:w-1/2 w-full lg:pl-10 mt-6 lg:mt-0">
                         <h1 className="text-gray-500 text-sm title-font font-medium mb-1">OrderID: {order._id}</h1>
                         <h1 className="text-gray-500 text-sm title-font font-medium mb-1">Date: {formatDate(order.date)}</h1>
+                        {order.orderStatus == "Accepted" && order.expiry_date && <h1 className="text-gray-800 text-sm title-font font-medium mb-1">Expires on {formatDate(order.expiry_date)} ({getRemainingTime(order.expiry_date)} left)</h1>}
 
                         <h1 className="text-gray-900 text-3xl title-font font-medium mb-1">{order.item.name} </h1>
                         <div className={`${order.orderStatus == "Accepted" ? "text-white bg-green-400 px-3 py-1 rounded-full" : "text-white bg-red-400 px-3 py-1 rounded-full"} w-fit text-sm text-gray-600 transition`}>
@@ -81,7 +99,7 @@ const OrderDetail = () => {
                         <p className="title-font font-medium text-sm mt-2 text-gray-900">Transaction No: {order.transactionNumber}</p>
                         <p className="title-font font-medium text-2xl text-gray-900">Price: ₹{order.subtotal}</p>
                         <button onClick={() => setIsOpen(true)} className="flex text-white bg-indigo-500 border-0 py-1 px-3 focus:outline-none hover:bg-indigo-600 rounded">View Payment Screenshot</button>
-                        {(order.orderStatus != "Cancelled" && order.orderStatus != "Rejected") && <button onClick={handleOrderCancel} className="flex mt-3 text-white bg-red-500 border-0 py-1 px-3 focus:outline-none hover:bg-red-600 rounded">Cancel Order</button>}
+                        {order.orderStatus == "Pending" && <button onClick={handleOrderCancel} className="flex mt-3 text-white bg-red-500 border-0 py-1 px-3 focus:outline-none hover:bg-red-600 rounded">Cancel Order</button>}
                         {order.orderStatus == "Accepted" && <>
                             <p className='text-black text-xl font-bold'>Credentials</p>
                             <p className='text-black'>IP Address</p>
