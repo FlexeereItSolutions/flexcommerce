@@ -23,40 +23,71 @@ const Page = () => {
     }, [])
 
     const handleSubmit = async (e) => {
-        e.preventDefault()
+        e.preventDefault();
+        
+        // Reset error state
+        setError("");
+    
+        // Validate all fields are filled
         if (!firstName || !lastName || !email || !password || !passwordConfirmation) {
-            setError("All fields are required")
-            return
+            setError("All fields are required");
+            return;
         }
-        // check if email is valid email
-        const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/
+    
+        // Validate email format
+        const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
         if (!emailPattern.test(email)) {
-            setError("Invalid email")
-            return
+            setError("Invalid email format");
+            return;
         }
+    
+        // Validate password confirmation
         if (password !== passwordConfirmation) {
-            setError("Password and password confirmation do not match")
-            return
+            setError("Password and password confirmation do not match");
+            return;
         }
-        const response = await fetch("/api/register", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                name: `${firstName.trim()} ${lastName.trim()}`,
-                email: email,
-                password: password
-            })
-        })
-        const data = await response.json()
-        if (!data.success) {
-            setError(data.message)
-            return
-        } else {
-            setOtpSent(true)
+    
+        // Attempt to register the user
+        try {
+            const response = await fetch("/api/register", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    name: `${firstName.trim()} ${lastName.trim()}`,
+                    email: email.trim(),
+                    password: password
+                })
+            });
+    
+            const data = await response.json();
+    
+            if (!data.success) {
+                switch (data.type) {
+                    case "UNVERIFIED_ACCOUNT":
+                        alert("Your account is not verified. Please check your email for the verification link or contact support services for assistance.");
+                        break;
+                    case "REGISTRATION_FAILURE":
+                        alert("Unable to create account or send verification email. Please try again later or contact support services.");
+                        break;
+                    default:
+                        setError(data.message);
+                }
+                return;
+            }
+    
+            // Registration successful
+            alert("Account created successfully. Please check your email to verify your account.");
+            setOtpSent(true);
+            // Optionally, you can redirect to a "check your email" page
+            // router.push("/check-email");
+    
+        } catch (error) {
+            console.error("Registration error:", error);
+            setError("An unexpected error occurred. Please try again later.");
         }
-    }
+    };
     const verifyOtp = async (e) => {
         e.preventDefault()
         if (!otp) {
