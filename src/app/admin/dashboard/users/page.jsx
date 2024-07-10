@@ -1,5 +1,5 @@
 "use client"
-import { fetchUsers } from '@/app/actions'
+import { fetchUsers,deleteUser  } from '@/app/actions'
 import { useRouter } from 'next/navigation'
 import React, { useLayoutEffect, useState } from 'react'
 import Link from "next/link"
@@ -10,31 +10,17 @@ const Page = () => {
     const [isOpen, setIsOpen] = useState(false)
     const router = useRouter()
     const [selectedUsers, setSelectedUsers] = useState()
-     const deleteUser = async (userId, token) => {
-        try {
-            const response = await fetch(`/api/delete-user?userId=${userId}`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                },
-            });
-            const data = await response.json();
-            return data;
-        } catch (error) {
-            console.error('Error deleting user:', error);
-            return { success: false, message: 'Something went wrong' };
+    const handleDelete = async (userId) => {
+        if (window.confirm("Are you sure you want to delete this user?")) {
+            const result = await deleteUser(userId, localStorage.getItem("token"));
+            if (result.success) {
+                setUsers(users.filter(user => user._id !== userId));
+                // Optionally, you can show a success message here
+            } else {
+                alert(result.message || "Failed to delete user");
+            }
         }
     }
-const handleDelete = async (userId) => {
-    if (window.confirm("Are you sure you want to delete this user?")) {
-        const result = await deleteUser(userId, localStorage.getItem("token"));
-        if (result.success) {
-            setUsers(users.filter(user => user._id !== userId));
-        } else {
-            alert("Failed to delete user");
-        }
-    }
-}
     useLayoutEffect(() => {
         const getUsers = async () => {
             if (!localStorage.getItem("token")) return router.push("/admin/login")
@@ -72,9 +58,9 @@ const handleDelete = async (userId) => {
                                 <td className="whitespace-nowrap py-1  text-white">{user.isActive ? <span className='bg-green-600 px-2 py-1 rounded-full'>Verified</span> : <span className='bg-red-400 px-3 py-1 rounded-full'>Unverified</span>}</td>
                                 <td className="whitespace-nowrap py-1  text-white">{user.isAdmin ? <span className='bg-green-600 px-4 py-1 rounded-full'>Admin</span> : <span className='bg-blue-600 px-6 py-1 rounded-full'>User</span>}</td>
                                 <td className="whitespace-nowrap py-1 text-black">
-                        <button onClick={() => { setSelectedUsers(user); setIsOpen(true) }} className='bg-red-600 text-white px-3 py-1 rounded-sm mr-2'>Edit</button>
-                        <button onClick={() => handleDelete(user._id)} className='bg-red-600 text-white px-3 py-1 rounded-sm'>Delete</button>
-                    </td>
+    <button onClick={() => { setSelectedUsers(user); setIsOpen(true) }} className='bg-red-600 text-white px-3 py-1 rounded-sm mr-2'>Edit</button>
+    <button onClick={() => handleDelete(user._id)} className='bg-red-600 text-white px-3 py-1 rounded-sm'>Delete</button>
+</td>
                                 
                             </tr>)}
                         </tbody>
@@ -97,9 +83,9 @@ const handleDelete = async (userId) => {
                                 <td className="whitespace-nowrap py-1  text-white">{user.isAdmin ? <span className='bg-green-600 px-4 py-1 rounded-full'>Admin</span> : <span className='bg-blue-600 px-6 py-1 rounded-full'>User</span>}</td>
                                 <br />
                                 <td className="whitespace-nowrap py-1 text-black">
-                        <button onClick={() => { setSelectedUsers(user); setIsOpen(true) }} className='bg-red-600 text-white px-3 py-1 rounded-sm mr-2'>Edit</button>
-                        <button onClick={() => handleDelete(user._id)} className='bg-red-600 text-white px-3 py-1 rounded-sm'>Delete</button>
-                    </td>
+    <button onClick={() => { setSelectedUsers(user); setIsOpen(true) }} className='bg-red-600 text-white px-3 py-1 rounded-sm mr-2'>Edit</button>
+    <button onClick={() => handleDelete(user._id)} className='bg-red-600 text-white px-3 py-1 rounded-sm'>Delete</button>
+</td>
                             </tr>)}
                         </tbody>
                     </table>
