@@ -351,4 +351,4 @@ const deleteUser = async (userId, token) => {
     }
     return { success: false, message: "Action not allowed" }
 }
-export { sendVerificationOTP, verifyOTP, resendOTP, verifyUser, deleteProduct, fetchProduct, getProducts, addToCart, fetchCart, removeFromCart, fetchOrders, fetchAdminOrders, fetchOrder, acceptOrder, updateOrder, fetchUsers, fetchUserOrders, updateUser, cancelOrder, rejectOrder, getPaymentQR }
+export { sendVerificationOTP, verifyOTP, resendOTP, verifyUser, deleteProduct, fetchProduct, getProducts, addToCart, fetchCart, removeFromCart, fetchOrders, fetchAdminOrders, fetchOrder, acceptOrder, updateOrder, fetchUsers, fetchUserOrders, updateUser, cancelOrder, rejectOrder, getPaymentQR, deleteUser }
