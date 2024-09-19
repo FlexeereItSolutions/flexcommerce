@@ -15,6 +15,20 @@ const AdminOrderDetail = () => {
     const [modalOpen, setModalOpen] = useState(false)
     const [modalMode, setModalMode] = useState('accept')
 
+    function getRemainingTime(ed) {
+        const currentDate = new Date();
+        const expiryDate= new Date(ed)
+        const timeDifference = expiryDate.getTime() - currentDate.getTime();
+
+        const daysRemaining = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
+        const hoursRemaining = Math.floor((timeDifference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutesRemaining = Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60));
+        if (daysRemaining > 0) return `${daysRemaining} days ${hoursRemaining} hours`
+        if (hoursRemaining > 0) return `${hoursRemaining} hours ${minutesRemaining} minutes`
+        if (minutesRemaining > 0) return `${minutesRemaining} minutes`
+        return `${daysRemaining} days, ${hoursRemaining} hours, ${minutesRemaining} minutes remaining`;
+    }
+
     function formatDate(d) {
         const monthNames = [
             'January', 'February', 'March', 'April', 'May', 'June',
@@ -103,12 +117,7 @@ const AdminOrderDetail = () => {
                         }
                         <h1 className="text-gray-500 text-sm title-font font-medium mb-1">OrderID: {order._id}</h1>
                         <h1 className="text-gray-500 text-sm title-font font-medium mb-1">Date: {formatDate(order.date)}</h1>
-                        {order.orderStatus == "Accepted" && order.expiry_date && (
-                                                    <div>
-                                                        <dt className="inline text-sm">Expires on:{" "}</dt>
-                                                        <dd className="inline text-sm">{formatDate(order.expiry_date.toString())}</dd>
-                                                    </div>
-                                                )}
+                        {order.orderStatus == "Accepted" && order.expiry_date && <h1 className="text-gray-800 text-sm title-font font-medium mb-1">Expires on {formatDate(order.expiry_date.toString())} ({getRemainingTime(order.expiry_date.toString())} left)</h1>}
 
                         <h1 className="text-gray-900 text-3xl title-font font-medium mb-1">{order.item.name} </h1>
                         <div className={`${order.orderStatus == "Accepted" ? "text-white bg-green-400 px-3 py-1 rounded-full" : "text-white bg-red-400 px-3 py-1 rounded-full"} w-fit text-sm text-gray-600 transition`}>
