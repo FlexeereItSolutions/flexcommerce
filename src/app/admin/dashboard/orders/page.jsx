@@ -13,11 +13,13 @@ const AdminOrders = () => {
     const [isLoading, setIsLoading] = useState(true)
     const [currentOrders, setCurrentOrders] = useState([])
 
-    function formatDate(date) {
+    function formatDate(d) {
         const monthNames = [
             'January', 'February', 'March', 'April', 'May', 'June',
             'July', 'August', 'September', 'October', 'November', 'December'
         ];
+
+        const date= new Date(d)
 
         const day = date.getDate();
         const month = monthNames[date.getMonth()];
@@ -169,7 +171,13 @@ const AdminOrders = () => {
                                             >
                                                 {item.item?.name || 'Unnamed Item'}
                                             </Link>
+                                            {item.user && <dl className="mt-0.5 space-y-px text-[10px] text-black">
+                                                <div>
+                                                    <dt className="inline">Ordered By:{" "}</dt>
+                                                    <dd className="inline font-semibold">{item.user.name}</dd>
+                                                </div>
 
+                                            </dl>}
                                             <dl className="mt-0.5 space-y-px text-[10px] text-gray-600">
                                                 <div>
                                                     <dt className="inline">OrderID:{" "}</dt>
@@ -180,12 +188,12 @@ const AdminOrders = () => {
                                             <dl className="mt-0.5 space-y-px text-[10px] font-medium text-gray-600">
                                                 <div>
                                                     <dt className="inline">Date:{" "}</dt>
-                                                    <dd className="inline">{formatDate(item.date)}</dd>
+                                                    <dd className="inline">{formatDate(item.date.toString())}</dd>
                                                 </div>
                                                 {item.orderStatus == "Accepted" && item.expiry_date && (
                                                     <div>
                                                         <dt className="inline">Expires on:{" "}</dt>
-                                                        <dd className="inline">{formatDate(item.expiry_date)}</dd>
+                                                        <dd className="inline">{formatDate(item.expiry_date.toString())}</dd>
                                                     </div>
                                                 )}
                                             </dl>

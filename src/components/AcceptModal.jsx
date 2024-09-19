@@ -1,32 +1,40 @@
-
 import Modal from 'react-modal';
-import { useState } from 'react';
-import { acceptOrder } from '../app/actions';
+import { useState, useEffect } from 'react';
+import { acceptOrder, updateOrder } from '../app/actions';
 import { useRouter } from 'next/navigation';
 
-function AcceptModal({ show, onHide, orderid }) {
-    const [ip, setIp] = useState("")
-    const [username, setUsername] = useState("")
-    const [password, setPassword] = useState("")
+function AcceptModal({ show, onHide, orderid, initialData = {} }) {
+    const [ip, setIp] = useState(initialData.ip || "")
+    const [username, setUsername] = useState(initialData.username || "")
+    const [password, setPassword] = useState(initialData.password || "")
     const [error, setError] = useState("")
     const router = useRouter()
+    const isEditing = !!initialData.ip
+
+    useEffect(() => {
+        if (show) {
+            setIp(initialData.ip || "")
+            setUsername(initialData.username || "")
+            setPassword(initialData.password || "")
+            setError("")
+        }
+    }, [show, initialData])
+
     const handleSubmit = async (e) => {
         e.preventDefault()
         if (!ip || !username || !password) return setError("All fields are mandatory")
-        const data = await acceptOrder(orderid, localStorage.getItem("token"), ip, username, password, new Date())
+        
+        const action = isEditing ? updateOrder : acceptOrder
+        const data = await action(orderid, localStorage.getItem("token"), ip, username, password, new Date())
+        
         if (data.success) {
             router.refresh()
-            setIp("")
-            setUsername("")
-            setError("")
-            setPassword("")
-            window.location.reload()
             onHide()
-        }
-        else {
+        } else {
             setError(data.message)
         }
     }
+
     return (
         <Modal
             isOpen={show}
@@ -55,7 +63,7 @@ function AcceptModal({ show, onHide, orderid }) {
         >
             <div className="justify-center items-center p-4 max-w-[100vw] bg-zinc-300 flex flex-col px-16 py-12 rounded-xl max-md:px-5">
                 <div className="text-black text-center text-2xl font-medium whitespace-nowrap mt-3.5">
-                    Accept Order{" "}
+                    {isEditing ? "Edit Order" : "Accept Order"}
                 </div>
                 <form className="flex flex-col max-md:max-w-[90%]" onSubmit={handleSubmit}>
                     <input type="text" name="ip" value={ip} onChange={e => { setIp(e.target.value); setError("") }} placeholder="Enter IP" className="text-black text-xl whitespace-nowrap border self-stretch justify-center mt-10 px-5 py-4 rounded-xl border-solid border-neutral-500 items-start max-md:pr-5" />
@@ -67,7 +75,7 @@ function AcceptModal({ show, onHide, orderid }) {
                     <span className="text-red-500 mt-3">{error}</span>
 
                     <button type="submit" className="text-white bg-green-500 text-xl whitespace-nowrap items-stretch shadow-sm  justify-center mt-7 mb-3.5 px-10 py-3 rounded-[40px] max-md:px-5">
-                        Accept Order
+                        {isEditing ? "Update Order" : "Accept Order"}
                     </button>
                 </form>
             </div>

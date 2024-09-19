@@ -8,7 +8,7 @@ import connectToDatabase from "../lib/connect";
 import jwt from "jsonwebtoken"
 import Product from "../models/Product";
 
-const resendOTP = async(email) => {
+const resendOTP = async (email) => {
     await connectToDatabase()
     let user = await User.findOne({ email: email })
     if (!user) {
@@ -21,7 +21,7 @@ const resendOTP = async(email) => {
     return { success: true, message: "OTP has been sent to your email" }
 }
 
-const sendVerificationOTP = async(email) => {
+const sendVerificationOTP = async (email) => {
     await connectToDatabase()
     let user = await User.findOne({ email: email })
     if (!user) {
@@ -36,7 +36,7 @@ const sendVerificationOTP = async(email) => {
 }
 
 
-const verifyOTP = async(email, otp) => {
+const verifyOTP = async (email, otp) => {
     await connectToDatabase()
     console.log(`Verifying email: ${email} with otp: ${otp}`)
     const user = await User.findOne({ email: email });
@@ -54,7 +54,7 @@ const verifyOTP = async(email, otp) => {
     }
 }
 
-const verifyUser = async(token) => {
+const verifyUser = async (token) => {
     await connectToDatabase()
     try {
         let isTokenValid = jwt.verify(token, process.env.JWT_SECRET)
@@ -70,7 +70,7 @@ const verifyUser = async(token) => {
     }
 }
 
-const deleteProduct = async(id, token) => {
+const deleteProduct = async (id, token) => {
     try {
         const data = await verifyUser(token)
         if (data.userValid && data.isAdmin) {
@@ -84,7 +84,7 @@ const deleteProduct = async(id, token) => {
     }
 }
 
-const updateProduct = async(id, newProduct, token) => {
+const updateProduct = async (id, newProduct, token) => {
     const data = await verifyUser(token)
     if (data.userValid && data.isAdmin) {
         const newP = await Product.findByIdAndUpdate(id, { $set: newProduct })
@@ -94,20 +94,20 @@ const updateProduct = async(id, newProduct, token) => {
     }
 }
 
-const getProducts = async() => {
+const getProducts = async () => {
     await connectToDatabase()
     const products = await Product.find({}).sort()
     return products
 }
 
-const fetchProduct = async(id) => {
+const fetchProduct = async (id) => {
     await connectToDatabase()
     console.log(id)
     const product = await Product.findById(id)
     return { _id: product._id.toString(), name: product.name.toString(), price: product.price.toString(), description: product.description.toString(), image: product.image.toString() }
 }
 
-const addToCart = async(id, token) => {
+const addToCart = async (id, token) => {
     const data = await verifyUser(token)
     if (data.userValid) {
         let userid = jwt.decode(token, process.env.JWT_SECRET)
@@ -124,7 +124,7 @@ const addToCart = async(id, token) => {
         return { success: false, message: "Action not allowed" }
     }
 }
-const removeFromCart = async(id, token) => {
+const removeFromCart = async (id, token) => {
     const data = await verifyUser(token)
     if (data.userValid) {
         let userid = jwt.decode(token, process.env.JWT_SECRET)
@@ -139,7 +139,7 @@ const removeFromCart = async(id, token) => {
     }
 }
 
-const fetchCart = async(token) => {
+const fetchCart = async (token) => {
     const data = await verifyUser(token)
     if (data.userValid) {
         let userid = jwt.decode(token, process.env.JWT_SECRET)
@@ -151,7 +151,7 @@ const fetchCart = async(token) => {
 }
 
 
-const fetchOrders = async(token) => {
+const fetchOrders = async (token) => {
     const data = await verifyUser(token)
     if (data.userValid) {
         let userid = jwt.decode(token, process.env.JWT_SECRET)
@@ -163,12 +163,29 @@ const fetchOrders = async(token) => {
 
 }
 
-const fetchAdminOrders = async(token) => {
+const fetchAdminOrders = async (token) => {
     const data = await verifyUser(token)
     if (data.userValid && data.isAdmin) {
         await connectToDatabase()
-        const orders = await Order.find({}).sort("-date")
-        return { success: true, orders: orders }
+        // Fetch orders
+        const orders = await Order.find().sort({ date: -1 }).lean()
+        // Fetch user details for each order
+        const ordersWithUserDetails = await Promise.all(orders.map(async (order) => {
+            const user = await User.findById(order.userId).select('name email').lean()
+            return {
+                ...order,
+                _id: order._id.toString(),
+                userId: order.userId.toString(),
+                date: order.date.toISOString(),
+                expiry_date: order.expiry_date ? order.expiry_date.toISOString() : null,
+                user: user ? {
+                    _id: user._id.toString(),
+                    name: user.name,
+                    email: user.email
+                } : null
+            }
+        }))
+        return { success: true, orders: ordersWithUserDetails }
     }
     return { success: false, message: "Action not allowed" }
 
@@ -179,25 +196,69 @@ function isDateTimeInPast(inputDateTime) {
     return inputDateTime < currentDateTime;
 }
 
-const fetchOrder = async(id, token) => {
+const fetchOrder = async (id, token) => {
     const data = await verifyUser(token)
     if (data.userValid) {
         await connectToDatabase()
-        const order = await Order.findById(id)
-        if (order.orderStatus == "Accepted" && isDateTimeInPast(order.expiry_date)) {
-            if (order.expired == false) {
-                await Order.findByIdAndUpdate(id, { $set: { orderStatus: "Expired" } })
-            }
-            let newOrder = { _id: order._id, userId: order.userId, item: order.item, orderStatus: "Expired", transactionNumber: order.transactionNumber, payment_ss: order.payment_ss, expiry_date: order.expiry_date }
-            return { success: true, order: newOrder }
+        const order = await Order.findById(id).lean()
+
+        if (!order) {
+            return { success: false, message: "Order not found" }
         }
-        return { success: true, order: order }
+
+        // Fetch user details
+        const user = await User.findById(order.userId).select('name email').lean()
+
+        // Check if order is expired
+        if (order.orderStatus == "Accepted" && isDateTimeInPast(order.expiry_date)) {
+            if (!order.expired) {
+                await Order.findByIdAndUpdate(id, { $set: { orderStatus: "Expired" } })
+                order.orderStatus = "Expired"
+            }
+        }
+
+        // Prepare the response object
+        const orderWithUserDetails = {
+            ...order,
+            _id: order._id.toString(),
+            userId: order.userId.toString(),
+            date: order.date.toISOString(),
+            expiry_date: order.expiry_date ? order.expiry_date.toISOString() : null,
+            user: user ? {
+                _id: user._id.toString(),
+                name: user.name,
+                email: user.email
+            } : null
+        }
+
+        return { success: true, order: orderWithUserDetails }
     }
     return { success: false, message: "Action not allowed" }
-
 }
 
-const rejectOrder = async(orderid, token) => {
+const updateOrder = async (orderid, token, ip, username, password, currentDate) => {
+    const data = await verifyUser(token)
+    if (data.userValid) {
+        await connectToDatabase()
+        const updatedOrder = await Order.findByIdAndUpdate(orderid, {
+            $set: {
+                ip_address: ip,
+                username: username,
+                password: password
+                // Note: We're not updating the expiry_date or orderStatus here
+            }
+        }, { new: true })
+        if (updatedOrder) {
+            return { success: true, message: "Order updated successfully", order: updatedOrder }
+        } else {
+            return { success: false, message: "Order not found or update failed" }
+        }
+    }
+    return { success: false, message: "Action not allowed" }
+}
+
+
+const rejectOrder = async (orderid, token) => {
     const data = await verifyUser(token)
     if (data.userValid) {
         await connectToDatabase()
@@ -207,7 +268,7 @@ const rejectOrder = async(orderid, token) => {
     return { success: false, message: "Action not allowed" }
 }
 
-const cancelOrder = async(orderid, token) => {
+const cancelOrder = async (orderid, token) => {
     const data = await verifyUser(token)
     if (data.userValid) {
         await connectToDatabase()
@@ -217,7 +278,7 @@ const cancelOrder = async(orderid, token) => {
     return { success: false, message: "Action not allowed" }
 }
 
-const acceptOrder = async(orderid, token, ip, username, password, currentDate) => {
+const acceptOrder = async (orderid, token, ip, username, password, currentDate) => {
     const data = await verifyUser(token)
     if (data.userValid) {
         await connectToDatabase()
@@ -228,7 +289,7 @@ const acceptOrder = async(orderid, token, ip, username, password, currentDate) =
     return { success: false, message: "Action not allowed" }
 }
 
-const fetchUsers = async(token) => {
+const fetchUsers = async (token) => {
     const data = await verifyUser(token)
     if (data.userValid && data.isAdmin) {
         await connectToDatabase()
@@ -239,7 +300,7 @@ const fetchUsers = async(token) => {
 
 }
 
-const fetchUserOrders = async(userid, token) => {
+const fetchUserOrders = async (userid, token) => {
     const data = await verifyUser(token)
     if (data.userValid && data.isAdmin) {
         await connectToDatabase()
@@ -250,7 +311,7 @@ const fetchUserOrders = async(userid, token) => {
 
 }
 
-const updateUser = async(user, token, userid) => {
+const updateUser = async (user, token, userid) => {
     const data = await verifyUser(token)
     if (data.userValid && data.isAdmin) {
         await connectToDatabase()
@@ -266,14 +327,14 @@ const updateUser = async(user, token, userid) => {
     }
 }
 
-const getPaymentQR = async() => {
+const getPaymentQR = async () => {
     await connectToDatabase()
     const qr = await Payment.find({})
     console.log(qr)
     if (qr.length == 0) return { success: false }
     else return { success: true, payment: qr[0] }
 }
-const deleteUser = async(userId, token) => {
+const deleteUser = async (userId, token) => {
     const data = await verifyUser(token)
     if (data.userValid && data.isAdmin) {
         await connectToDatabase()
@@ -290,4 +351,4 @@ const deleteUser = async(userId, token) => {
     }
     return { success: false, message: "Action not allowed" }
 }
-export { deleteUser, sendVerificationOTP, verifyOTP, resendOTP, verifyUser, deleteProduct, fetchProduct, getProducts, addToCart, fetchCart, removeFromCart, fetchOrders, fetchAdminOrders, fetchOrder, acceptOrder, fetchUsers, fetchUserOrders, updateUser, cancelOrder, rejectOrder, getPaymentQR }
+export { sendVerificationOTP, verifyOTP, resendOTP, verifyUser, deleteProduct, fetchProduct, getProducts, addToCart, fetchCart, removeFromCart, fetchOrders, fetchAdminOrders, fetchOrder, acceptOrder, updateOrder, fetchUsers, fetchUserOrders, updateUser, cancelOrder, rejectOrder, getPaymentQR }
